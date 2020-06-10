@@ -21,6 +21,10 @@ class State {
     }, 5000)
   }
 
+  async init() {
+    this.start()
+  }
+
   async fetchData() {
     const result = await axios.post('https://rpc.testnet.near.org', {
       jsonrpc: '2.0',
@@ -66,11 +70,11 @@ class State {
           const matches = []
           for (let j = 0; j < query.length; j++) {
             const [key, special] = query[j].key.split('_')
-            const value = query[j].value
+            const value = query[j].value.split(',')
             if (special === 'like' && post[key].toLowerCase().indexOf(value.toLowerCase()) > -1) {
               matches.push(true)
             }
-            else if (post[key] == value) {
+            else if (value.includes(post[key])) {
               matches.push(true)
             }
           }
@@ -86,7 +90,6 @@ class State {
           for (let k = 0; k < embed.length; k++) {
             const { col, key, targetCol, targetKey } = embed[k]
             post[col] = this.data[targetCol].find(d => d[targetKey] === post[key])
-            console.log(this.data.user)
           }
           result.push(post)
         }

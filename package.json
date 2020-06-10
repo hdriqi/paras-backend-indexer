@@ -14,8 +14,11 @@
     "body-parser": "^1.19.0",
     "cors": "^2.8.5",
     "express": "^4.17.1",
+    "js-sha256": "^0.9.0",
     "lokijs": "^1.5.8",
     "near-api-js": "^0.25.1",
+    "sjcl": "^1.0.8",
+    "tweetnacl": "^1.0.3",
     "underscore": "^1.10.2"
   },
   "devDependencies": {
