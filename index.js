@@ -5,6 +5,8 @@ const express = require('express')
 const cors = require('cors')
 const bodyParser = require('body-parser')
 
+const authenticate = require('./middleware/authenticate')
+
 const Feed = require('./controllers/Feed')
 
 const PORT = 9090
@@ -127,17 +129,14 @@ const main = async () => {
     })
   })
 
-  server.get('/feeds', async (req, res) => {
+  server.get('/feeds', authenticate, async (req, res) => {
     const {
-      pubKey,
-      signature,
-      id,
       _skip,
       _limit
     } = req.query
 
     try {
-      const result = await feed.get(pubKey, signature, id, _skip, _limit)
+      const result = await feed.get(req.userId, _skip, _limit)
       return res.json({
         success: 1,
         data: result
@@ -150,15 +149,9 @@ const main = async () => {
     }
   })
 
-  server.get('/follow', async (req, res) => {
-    const {
-      pubKey,
-      signature,
-      id
-    } = req.query
-
+  server.get('/follow', authenticate, async (req, res) => {
     try {
-      const result = await feed.getFollowing(pubKey, signature, id)
+      const result = await feed.getFollowing(req.userId)
       return res.json({
         success: 1,
         data: result
@@ -171,23 +164,20 @@ const main = async () => {
     }
   })
 
-  server.post('/follow', async (req, res) => {
+  server.post('/follow', authenticate, async (req, res) => {
     const {
-      pubKey,
-      signature,
-      id,
       targetId,
       targetType
     } = req.body
 
     try {
-      await feed.toggleFollow(pubKey, signature, id, targetId, targetType)
+      await feed.toggleFollow(req.userId, targetId, targetType)
       return res.json({
         success: 1,
         data: true
       })
     } catch (err) {
-      return res.json({
+      return res.status(400).json({
         success: 0,
         message: err
       })
