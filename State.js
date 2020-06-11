@@ -71,7 +71,7 @@ class State {
           for (let j = 0; j < query.length; j++) {
             const [key, special] = query[j].key.split('_')
             const value = query[j].value.split(',')
-            if (special === 'like' && post[key].toLowerCase().indexOf(value.toLowerCase()) > -1) {
+            if (special === 'like' && post[key].toLowerCase().indexOf(value[0].toLowerCase()) > -1) {
               matches.push(true)
             }
             else if (value.includes(post[key])) {
