@@ -57,15 +57,22 @@ class State {
   get({
     collection,
     query = [],
+    sort = 'desc',
     skip = 0,
     limit = 5,
     embed = []
   }) {
     return new Promise((resolve) => {
       let result = []
-      const reversedPost = this.data[collection].sort((a, b) => b.createdAt - a.createdAt)
-      for (let i = 0; i < reversedPost.length; i++) {
-        const post = reversedPost[i]
+      let postList = this.data[collection]
+      if (sort === 'desc') {
+        postList = this.data[collection].sort((a, b) => b.createdAt - a.createdAt)
+      }
+      else {
+        postList = this.data[collection].sort((a, b) => a.createdAt - b.createdAt)
+      }
+      for (let i = 0; i < postList.length; i++) {
+        const post = postList[i]
         if (query.length > 0) {
           const matches = []
           for (let j = 0; j < query.length; j++) {
