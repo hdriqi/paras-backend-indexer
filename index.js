@@ -93,6 +93,37 @@ const main = async () => {
     })
   })
 
+  server.get('/explore', async (req, res) => {
+    const min = 0
+    const max = state.data.post.length
+    const rng = Math.round(Math.random() * (max - min) + min)
+    const id = state.data.post[rng].id
+    const userList = await state.get({
+      collection: 'post',
+      query: [{
+        key: 'id',
+        value: id
+      }],
+      skip: req.query._skip,
+      limit: req.query._limit,
+      embed: [{
+        col: 'memento',
+        key: 'mementoId',
+        targetCol: 'memento',
+        targetKey: 'id'
+      }, {
+        col: 'user',
+        key: 'owner',
+        targetCol: 'user',
+        targetKey: 'id'
+      }]
+    })
+    return res.json({
+      success: 1,
+      data: userList
+    })
+  })
+
   server.get('/posts', async (req, res) => {
     const query = []
     Object.keys(req.query).forEach(key => {
@@ -188,7 +219,7 @@ const main = async () => {
 
   server.get('/follow', authenticate, async (req, res) => {
     try {
-      const result = await feed.getFollowing(req.userId)
+      const result = await feed.getFollowing(req.userId, req.query._skip, req.query._limit)
       return res.json({
         success: 1,
         data: result

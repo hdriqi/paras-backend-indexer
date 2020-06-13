@@ -71,6 +71,7 @@ class State {
       else {
         postList = this.data[collection].sort((a, b) => a.createdAt - b.createdAt)
       }
+      console.log(query)
       for (let i = 0; i < postList.length; i++) {
         const post = postList[i]
         if (query.length > 0) {

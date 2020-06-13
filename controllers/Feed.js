@@ -6,20 +6,6 @@ class Feed {
 
   async get(id, skip, limit) {
     const followingList = await this.getFollowing(id)
-    const mementoList = await this.state.get({
-      collection: 'memento',
-      query: [{
-        key: 'owner',
-        value: id
-      }],
-      limit: 100
-    })
-    mementoList.forEach(memento => {
-      followingList.push({
-        targetId: memento.id,
-        targetType: 'memento'
-      })
-    });
     followingList.push({
       targetId: id,
       targetType: 'user'
@@ -48,10 +34,28 @@ class Feed {
     return result
   }
 
-  async getFollowing(id) {
-    const followingList = await this.storage.feeds.chain().find({
+  async getFollowing(id, skip = 0, limit = 10) {
+    let followingList = await this.storage.feeds.chain().find({
       userId: id
     }).data({ removeMeta: true })
+
+    let result = followingList.map(follow => {
+      if (follow.targetType === 'memento') {
+        follow.memento = this.state.data.memento.find(m => m.id === follow.targetId)
+      }
+      else if (follow.targetType === 'user') {
+        follow.user = this.state.data.user.find(u => u.id === follow.targetId)
+      }
+      return follow
+    })
+    if (skip) {
+      result.splice(0, skip)
+    }
+
+    if (limit) {
+      result = result.slice(0, limit)
+    }
+
     return followingList
   }
 

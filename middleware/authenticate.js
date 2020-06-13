@@ -36,6 +36,7 @@ module.exports = async (req, res, next) => {
   })
 
   if (response.data.result && response.data.result.error) {
+    console.log(response.data.result.error)
     return res.status(401).json({
       success: 0,
       message: 'unauthorized'
