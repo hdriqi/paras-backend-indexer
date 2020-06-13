@@ -8,6 +8,7 @@ const bodyParser = require('body-parser')
 const authenticate = require('./middleware/authenticate')
 
 const Feed = require('./controllers/Feed')
+const Transaction = require('./controllers/Transaction')
 
 const PORT = 9090
 const server = express()
@@ -26,6 +27,7 @@ const main = async () => {
   await storage.init()
 
   const feed = await new Feed(state, storage)
+  const transaction = await new Transaction(state, storage)
 
   server.use(cors())
   server.use(bodyParser.urlencoded({ extended: true }))
@@ -96,9 +98,9 @@ const main = async () => {
   server.get('/explore', async (req, res) => {
     const min = 0
     const max = state.data.post.length
-    const rng = Math.round(Math.random() * (max - min) + min)
+    const rng = Math.floor(Math.random() * (max - min) + min)
     const id = state.data.post[rng].id
-    const userList = await state.get({
+    const postList = await state.get({
       collection: 'post',
       query: [{
         key: 'id',
@@ -120,7 +122,55 @@ const main = async () => {
     })
     return res.json({
       success: 1,
-      data: userList
+      data: postList
+    })
+  })
+
+  server.get('/balances', async (req, res) => {
+    const query = []
+    Object.keys(req.query).forEach(key => {
+      if (key[0] === '_') {
+        return
+      }
+      const value = req.query[key]
+      query.push({
+        key: key,
+        value: value
+      })
+    })
+
+    const balanceList = await state.get({
+      collection: 'pac:b',
+      query: query,
+      skip: req.query._skip,
+      limit: req.query._limit
+    })
+    return res.json({
+      success: 1,
+      data: balanceList
+    })
+  })
+
+  server.get('/transactions', async (req, res) => {
+    const txList = await transaction.getById({
+      id: req.query.id,
+      skip: req.query._skip,
+      limit: req.query._limit,
+      embed: [{
+        col: 'fromUser',
+        key: 'from',
+        targetCol: 'user',
+        targetKey: 'id'
+      }, {
+        col: 'toUser',
+        key: 'to',
+        targetCol: 'user',
+        targetKey: 'id'
+      }]
+    })
+    return res.json({
+      success: 1,
+      data: txList
     })
   })
 

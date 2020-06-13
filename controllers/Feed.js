@@ -31,6 +31,7 @@ class Feed {
     if (limit) {
       result = result.slice(0, limit)
     }
+    console.log(result)
     return result
   }
 
@@ -39,6 +40,7 @@ class Feed {
       userId: id
     }).data({ removeMeta: true })
 
+    console.log(followingList)
     let result = followingList.map(follow => {
       if (follow.targetType === 'memento') {
         follow.memento = this.state.data.memento.find(m => m.id === follow.targetId)

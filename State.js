@@ -33,7 +33,8 @@ class State {
       params: {
         request_type: 'view_state',
         finality: 'final',
-        account_id: 'dev-1591617607275',
+        // account_id: 'dev-1591617607275',
+        account_id: 'dev-1592027038343',
         prefix_base64: ''
       }
     })
@@ -43,12 +44,16 @@ class State {
     result.data.result.values.map(res => {
       const key = base64.decode(res.key)
       const value = parseJSON(base64.decode(res.value))
-      const prefix = key.split('::')[0]
-      if (newData[prefix]) {
-        newData[prefix].push(value)
-      }
-      else {
-        newData[prefix] = [value]
+      const [prefix, id] = key.split('::')
+      if (prefix && id) {
+        const doc = typeof value !== 'object' ? { value: value } : value
+        doc.id = id
+        if (newData[prefix]) {
+          newData[prefix].push(doc)
+        }
+        else {
+          newData[prefix] = [doc]
+        } 
       }
     })
     this.data = newData
@@ -65,13 +70,15 @@ class State {
     return new Promise((resolve) => {
       let result = []
       let postList = this.data[collection]
+      if (!postList) {
+        resolve([])
+      }
       if (sort === 'desc') {
         postList = this.data[collection].sort((a, b) => b.createdAt - a.createdAt)
       }
       else {
         postList = this.data[collection].sort((a, b) => a.createdAt - b.createdAt)
       }
-      console.log(query)
       for (let i = 0; i < postList.length; i++) {
         const post = postList[i]
         if (query.length > 0) {
