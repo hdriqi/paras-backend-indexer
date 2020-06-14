@@ -1,3 +1,5 @@
+require('dotenv').config()
+
 const nearAPI = require('near-api-js')
 const State = require('./State')
 const Storage = require('./Storage')

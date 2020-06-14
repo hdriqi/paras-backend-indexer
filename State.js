@@ -12,6 +12,8 @@ function parseJSON(str) {
 class State {
   constructor() {
     this.data = {}
+    this.contractName = null
+    this.__init__ = false
   }
 
   async start() {
@@ -22,10 +24,16 @@ class State {
   }
 
   async init() {
+    if (!process.env.CONTRACT_NAME) {
+      throw 'CONTRACT_NAME is not defined on env'
+    }
+    this.contractName = process.env.CONTRACT_NAME
+    this.__init__ = true
     this.start()
   }
 
   async fetchData() {
+    // dev-1592027038343
     const result = await axios.post('https://rpc.testnet.near.org', {
       jsonrpc: '2.0',
       id: 'dontcare',
@@ -33,8 +41,7 @@ class State {
       params: {
         request_type: 'view_state',
         finality: 'final',
-        // account_id: 'dev-1591617607275',
-        account_id: 'dev-1592027038343',
+        account_id: this.contractName,
         prefix_base64: ''
       }
     })
