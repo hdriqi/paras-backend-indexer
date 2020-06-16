@@ -41,9 +41,7 @@ class User {
         await this.storage.verifications.insertOne(doc)
 
         // send email
-        const token = jwt.sign(doc, process.env.JWT_SECRET, {
-          expiresIn: '15m'
-        })
+        const token = jwt.sign(doc, process.env.JWT_SECRET)
         const link = `http://localhost:3000/confirm-email/${token}`
         this.mail.sendVerifyEmail({
           link: link,
@@ -66,13 +64,13 @@ class User {
         if (alreadyConfirmed) {
           return reject('already_confirmed')
         }
-        await this.storage.verifications.findAndUpdate({
+        const newDoc = await this.storage.verifications.findAndUpdate({
           userId: decoded.userId,
           email: decoded.email
         }, (doc) => {
           doc.status = 'confirmed'
         })
-        resolve(true)
+        resolve(newDoc)
       } catch (err) {
         reject(err)
       }
