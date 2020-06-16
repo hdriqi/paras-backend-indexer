@@ -12,10 +12,15 @@ class Storage {
 
   _init() {
     this.ready = true
-    this.feeds = this.db.getCollection('feeds')    
+    this.feeds = this.db.getCollection('feeds')
+    this.verifications = this.db.getCollection('verifications')
     if (!this.feeds) {
-      console.log('create new collection')
+      console.log('create new feeds collection')
       this.feeds = this.db.addCollection('feeds')
+    }
+    if (!this.verifications) {
+      console.log('create new verifications collection')
+      this.feeds = this.db.addCollection('verifications')
     }
   }
 

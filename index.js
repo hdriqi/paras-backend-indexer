@@ -1,16 +1,19 @@
 require('dotenv').config()
 
 const nearAPI = require('near-api-js')
-const State = require('./State')
-const Storage = require('./Storage')
 const express = require('express')
 const cors = require('cors')
 const bodyParser = require('body-parser')
 
 const authenticate = require('./middleware/authenticate')
 
+const State = require('./State')
+const Storage = require('./Storage')
+const Mail = require('./Mail')
+
 const Feed = require('./controllers/Feed')
 const Transaction = require('./controllers/Transaction')
+const Verification = require('./controllers/Verification')
 
 const PORT = 9090
 const server = express()
@@ -25,11 +28,14 @@ const config = {
 const main = async () => {
   const state = new State()
   const storage = new Storage()
+  const mail = new Mail()
   await state.init()
   await storage.init()
+  await mail.init()
 
   const feed = await new Feed(state, storage)
   const transaction = await new Transaction(state, storage)
+  const verification = await new Verification(state, storage, mail)
 
   server.use(cors())
   server.use(bodyParser.urlencoded({ extended: true }))
@@ -304,6 +310,61 @@ const main = async () => {
     }
   })
 
+  server.get('/register', authenticate, async (req, res) => {
+    try {
+      const user = await verification.checkRegister(req.userId)
+      return res.json({
+        success: 1,
+        data: user
+      })
+    } catch (err) {
+      return res.status(400).json({
+        success: 0,
+        message: err
+      })
+    }
+  })
+
+  server.post('/register', authenticate, async (req, res) => {
+    const {
+      email,
+      fullName,
+      referral,
+    } = req.body
+
+    try {
+      await verification.register(req.userId, email, fullName, referral)
+      return res.json({
+        success: 1,
+        data: true
+      })
+    } catch (err) {
+      return res.status(400).json({
+        success: 0,
+        message: err
+      })
+    }
+  })
+
+  server.post('/confirm', async (req, res) => {
+    const {
+      token
+    } = req.body
+
+    try {
+      await verification.confirmEmail(token)
+      return res.json({
+        success: 1,
+        data: true
+      })
+    } catch (err) {
+      return res.status(400).json({
+        success: 0,
+        message: err
+      })
+    }
+  })
+
   server.listen(PORT, () => {
     console.log(`indexer running on PORT ${PORT}`)
   })
@@ -326,6 +387,7 @@ const main = async () => {
   // keyPair.ve
   // // Needed to access wallet
   // const account = await near.account('paras-dev.testnet');
+  // console.log(account)
   // // console.log(account)
   // try {
   //   const x = await account.viewFunction('paras-dev.testnet', 'getPostList', {
