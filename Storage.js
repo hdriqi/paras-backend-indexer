@@ -20,7 +20,7 @@ class Storage {
     }
     if (!this.verifications) {
       console.log('create new verifications collection')
-      this.feeds = this.db.addCollection('verifications')
+      this.verifications = this.db.addCollection('verifications')
     }
   }
 
