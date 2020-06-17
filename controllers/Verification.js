@@ -42,7 +42,7 @@ class User {
 
         // send email
         const token = jwt.sign(doc, process.env.JWT_SECRET)
-        const link = `http://localhost:3000/confirm-email/${token}`
+        const link = `${process.env.FRONTEND_URL}/confirm-email/${token}`
         this.mail.sendVerifyEmail({
           link: link,
           email: email
