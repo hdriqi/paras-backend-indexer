@@ -34,36 +34,39 @@ class State {
 
   async fetchData() {
     // dev-1592027038343
-    const result = await axios.post('https://rpc.testnet.near.org', {
-      jsonrpc: '2.0',
-      id: 'dontcare',
-      method: 'query',
-      params: {
-        request_type: 'view_state',
-        finality: 'final',
-        account_id: this.contractName,
-        prefix_base64: ''
-      }
-    })
-
-    console.log(`fetch successfull ${new Date()}`)
-    const newData = {}
-    result.data.result.values.map(res => {
-      const key = base64.decode(res.key)
-      const value = parseJSON(base64.decode(res.value))
-      const [prefix, id] = key.split('::')
-      if (prefix && id) {
-        const doc = typeof value !== 'object' ? { value: value } : value
-        doc.id = id
-        if (newData[prefix]) {
-          newData[prefix].push(doc)
+    try {
+      const result = await axios.post('https://rpc.testnet.near.org', {
+        jsonrpc: '2.0',
+        id: 'dontcare',
+        method: 'query',
+        params: {
+          request_type: 'view_state',
+          finality: 'final',
+          account_id: this.contractName,
+          prefix_base64: ''
         }
-        else {
-          newData[prefix] = [doc]
-        } 
-      }
-    })
-    this.data = newData
+      })
+      console.log(`fetch successfull ${new Date()}`)
+      const newData = {}
+      result.data.result.values.map(res => {
+        const key = base64.decode(res.key)
+        const value = parseJSON(base64.decode(res.value))
+        const [prefix, id] = key.split('::')
+        if (prefix && id) {
+          const doc = typeof value !== 'object' ? { value: value } : value
+          doc.id = id
+          if (newData[prefix]) {
+            newData[prefix].push(doc)
+          }
+          else {
+            newData[prefix] = [doc]
+          }
+        }
+      })
+      this.data = newData
+    } catch (err) {
+      console.log(err)
+    }
   }
 
   get({
