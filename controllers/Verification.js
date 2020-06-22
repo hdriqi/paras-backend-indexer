@@ -38,6 +38,7 @@ class User {
       // else save data
       else {
         doc.createdAt = new Date().getTime()
+        doc.updatedAt = new Date().getTime()
         await this.storage.verifications.insertOne(doc)
 
         // send email
@@ -68,6 +69,7 @@ class User {
           userId: decoded.userId,
           email: decoded.email
         }, (doc) => {
+          doc.updatedAt = new Date().getTime()
           doc.status = 'confirmed'
         })
         resolve(newDoc)
