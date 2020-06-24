@@ -94,7 +94,7 @@ class State {
           start: currentLen + 1 || 0
         })
         if (newEvents.length > 0) {
-          for (const event of newEvents) {
+          for await (const event of newEvents) {
             await this.handleEvent(event)
           }
         }

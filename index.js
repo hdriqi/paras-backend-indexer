@@ -29,46 +29,46 @@ const main = async () => {
   // const transaction = await new Transaction(state, storage)
   // const verification = await new Verification(state, storage, mail)
 
-  // server.use(cors())
-  // server.use(bodyParser.urlencoded({ extended: true }))
-  // server.use(bodyParser.json())
+  server.use(cors())
+  server.use(bodyParser.urlencoded({ extended: true }))
+  server.use(bodyParser.json())
 
-  // server.get('/', (req, res) => {
-  //   return res.json({
-  //     success: 1
-  //   })
-  // })
+  server.get('/', (req, res) => {
+    return res.json({
+      success: 1
+    })
+  })
 
-  // server.get('/mementos', async (req, res) => {
-  //   const query = []
-  //   Object.keys(req.query).forEach(key => {
-  //     if (key[0] === '_') {
-  //       return
-  //     }
-  //     const value = req.query[key]
-  //     query.push({
-  //       key: key,
-  //       value: value
-  //     })
-  //   })
+  server.get('/mementos', async (req, res) => {
+    const mementoList = await storage.get('memento', req.query, [{
+      col: 'user',
+      key: 'owner',
+      targetCol: 'user',
+      targetKey: 'id'
+    }])
+    return res.json({
+      success: 1,
+      data: mementoList
+    })
+  })
 
-  //   const mementoList = await state.get({
-  //     collection: 'memento',
-  //     query: query,
-  //     skip: req.query._skip,
-  //     limit: req.query._limit,
-  //     embed: [{
-  //       col: 'user',
-  //       key: 'owner',
-  //       targetCol: 'user',
-  //       targetKey: 'id'
-  //     }]
-  //   })
-  //   return res.json({
-  //     success: 1,
-  //     data: mementoList
-  //   })
-  // })
+  server.get('/posts', async (req, res) => {
+    const postList = await storage.get('post', req.query, [{
+      col: 'memento',
+      key: 'mementoId',
+      targetCol: 'memento',
+      targetKey: 'id'
+    }, {
+      col: 'user',
+      key: 'owner',
+      targetCol: 'user',
+      targetKey: 'id'
+    }])
+    return res.json({
+      success: 1,
+      data: postList
+    })
+  })
 
   // server.get('/users', async (req, res) => {
   //   const query = []
