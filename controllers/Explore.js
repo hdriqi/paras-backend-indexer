@@ -52,6 +52,7 @@ class Explore {
     const itemList = result.slice(0, 10).map(res => {
       return {
         id: res.item.id,
+        type: res.item.imgAvatar ? 'user' : 'memento',
         img: res.item.img || res.item.imgAvatar
       }
     })
