@@ -4,7 +4,7 @@ var processQuery = qpm()
 
 class Storage {
   constructor() {
-    const uri = "mongodb://localhost:27017?retryWrites=true&w=majority"
+    const uri = `${process.env.MONGO_URL}?retryWrites=true&w=majority`
     this.client = new MongoClient(uri, { useNewUrlParser: true, useUnifiedTopology: true })
     this.ready = null
   }
