@@ -1,3 +1,5 @@
+const Fuse = require('fuse.js')
+
 class Explore {
   constructor(state, storage) {
     this.state = state
@@ -32,6 +34,29 @@ class Explore {
       result.push(d)
     }
     return result
+  }
+
+  async search(q) {
+    const userList = await this.storage.get('user', q)
+    const mementoList = await this.storage.get('memento', q)
+    const combineList = userList.concat(mementoList)
+
+    const options = {
+      includeScore: true,
+      sortFn: (a,b) => b.score - a.score,
+      keys: ['id']
+    }
+    
+    const fuse = new Fuse(combineList, options)
+    const result = fuse.search(q.id__re)
+    const itemList = result.slice(0, 10).map(res => {
+      return {
+        id: res.item.id,
+        img: res.item.img || res.item.imgAvatar
+      }
+    })
+
+    return itemList
   }
 }
 

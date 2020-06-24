@@ -82,6 +82,14 @@ const main = async () => {
     })
   })
 
+  server.get('/search', async (req, res) => {
+    const itemList = await explore.search(req.query)
+    return res.json({
+      success: 1,
+      data: itemList
+    })
+  })
+
   server.get('/users', async (req, res) => {
     const userList = await storage.get('user', req.query)
     return res.json({
