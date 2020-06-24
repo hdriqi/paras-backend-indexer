@@ -254,44 +254,6 @@ const main = async () => {
   server.listen(PORT, () => {
     console.log(`indexer running on PORT ${PORT}`)
   })
-
-  // const pk = new Uint8Array([199, 11, 243, 142, 206, 8, 242, 213, 84, 240, 237, 206, 195, 69, 226, 75, 22, 6, 10, 62, 75, 34, 215, 83, 217, 128, 208, 87, 58, 214, 189, 34])
-  // const signature = new Uint8Array([120, 83, 157, 109, 81, 121, 93, 45, 220, 196, 250, 85, 63, 114, 51, 200, 134, 1, 58, 124, 100, 127, 88, 45, 149, 64, 23, 95, 51, 10, 87, 10, 44, 15, 35, 226, 255, 205, 223, 220, 238, 98, 65, 104, 20, 137, 36, 15, 13, 33, 27, 123, 251, 110, 252, 64, 164, 233, 206, 200, 155, 74, 27, 3])
-  // const msg = 'abc'
-  // const hash = new Uint8Array(sha256.sha256.array(msg));
-  // const x = nacl.sign.detached.verify(hash, signature, pk);
-  // console.log(x)
-  // const f = await storage.feeds.insertOne({
-  //   feedId: '123',
-  //   targetId: '456',
-  //   targetType: 'memento'
-  // })
-  // console.log(f)
-
-  // const near = await nearAPI.connect(config)
-  // const keyPair = new nearAPI.KeyPairEd25519()
-  // keyPair.ve
-  // // Needed to access wallet
-  // const account = await near.account('paras-dev.testnet');
-  // console.log(account)
-  // // console.log(account)
-  // try {
-  //   const x = await account.viewFunction('paras-dev.testnet', 'getPostList', {
-  //     query: [],
-  //     opts: {
-  //       _embed: true,
-  //       _sort: 'createdAt',
-  //       _order: 'desc',
-  //       __skip: 0,
-  //       __limit: 5
-  //     }
-  //   })
-  //   // console.log(x)  
-  // } catch (err) {
-  //   console.log(err)
-  // }
-
-  // options.contractName, options.methodName, JSON.parse(options.args || '{}')))
 }
 
 main()
