@@ -1,44 +1,23 @@
-const Loki = require('lokijs')
+const MongoClient = require('mongodb').MongoClient
 
 class Storage {
   constructor() {
-    this.db = new Loki('db.json', {
-      autosave: true,
-      autoload: true,
-      autoloadCallback: this._init.bind(this)
-    })
+    const uri = "mongodb://localhost:27017?retryWrites=true&w=majority"
+    this.client = new MongoClient(uri, { useNewUrlParser: true, useUnifiedTopology: true })
     this.ready = null
   }
 
-  _init() {
-    this.ready = true
-    this.feeds = this.db.getCollection('feeds')
-    this.verifications = this.db.getCollection('verifications')
-    if (!this.feeds) {
-      console.log('create new feeds collection')
-      this.feeds = this.db.addCollection('feeds')
+  async init() {
+    try {
+      await this.client.connect()
+      this.db = this.client.db('paras-test')
+      this.ready = true
+      this.feeds = this.db.collection('feeds')
+      this.kv = this.db.collection('kv')
+      this.verifications = this.db.collection('verifications')
+    } catch (err) {
+      console.log(err)
     }
-    if (!this.verifications) {
-      console.log('create new verifications collection')
-      this.verifications = this.db.addCollection('verifications')
-    }
-  }
-
-  init() {
-    const self = this
-    return new Promise((resolve, reject) => {
-      const interval = setInterval(() => {
-        if (self.ready) {
-          resolve('initialize db')
-        }
-      }, 100)
-      setTimeout(() => {
-        if (!self.ready) {
-          clearInterval(interval)
-          reject('Failed to initialize db')
-        }
-      }, 5000)
-    })
   }
 }
 

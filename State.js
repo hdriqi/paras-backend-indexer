@@ -1,5 +1,13 @@
 const axios = require('axios')
 const base64 = require('base-64')
+const nearAPI = require('near-api-js')
+
+const config = {
+  nodeUrl: 'https://rpc.testnet.near.org',
+  deps: {
+    keyStore: new nearAPI.keyStores.UnencryptedFileSystemKeyStore()
+  }
+}
 
 function parseJSON(str) {
   try {
@@ -10,8 +18,9 @@ function parseJSON(str) {
 }
 
 class State {
-  constructor() {
+  constructor(storage) {
     this.data = {}
+    this.storage = storage
     this.contractName = null
     this.__init__ = false
   }
@@ -20,7 +29,7 @@ class State {
     await this.fetchData()
     setTimeout(() => {
       this.start()
-    }, 5000)
+    }, 3000)
   }
 
   async init() {
@@ -29,41 +38,67 @@ class State {
     }
     this.contractName = process.env.CONTRACT_NAME
     this.__init__ = true
+    this.near = await nearAPI.connect(config)
+    this.account = await this.near.account(process.env.CONTRACT_NAME)
     this.start()
   }
 
+  async handleEvent(event) {
+    // id, msg, params
+    const [collection, type] = event.msg.split('_')
+    const collectionCapitalize = collection.charAt(0).toUpperCase() + collection.slice(1)
+    const methodName = `get${collectionCapitalize}ById`
+    const args = {
+      id: event.params
+    }
+    const data = await this.account.viewFunction(this.contractName, methodName, args)
+    if (type === 'create') {
+      await this.storage.db.collection(collection).insertOne(data)
+    }
+    else if (type === 'update') {
+      await this.storage.db.collection(collection).findOneAndUpdate({
+        id: event.params
+      }, {
+        $set: data
+      }, {
+        upsert: true
+      })
+    }
+    else if (type === 'delete') {
+      await this.storage.db.collection(collection).deleteOne({
+        id: event.params
+      })
+    }
+    await this.storage.kv.findOneAndUpdate({
+      key: 'latestEvent',
+    }, {
+      $set: {
+        value: parseInt(event.id)
+      }
+    }, {
+      upsert: true
+    })
+  }
+
   async fetchData() {
-    // dev-1592027038343
     try {
-      const result = await axios.post('https://rpc.testnet.near.org', {
-        jsonrpc: '2.0',
-        id: 'dontcare',
-        method: 'query',
-        params: {
-          request_type: 'view_state',
-          finality: 'final',
-          account_id: this.contractName,
-          prefix_base64: ''
-        }
+      console.log('check new data')
+      const latestEvent = await this.storage.kv.findOne({
+        key: 'latestEvent'
       })
-      console.log(`fetch successfull ${new Date()}`)
-      const newData = {}
-      result.data.result.values.map(res => {
-        const key = base64.decode(res.key)
-        const value = parseJSON(base64.decode(res.value))
-        const [prefix, id] = key.split('::')
-        if (prefix && id) {
-          const doc = typeof value !== 'object' ? { value: value } : value
-          doc.id = id
-          if (newData[prefix]) {
-            newData[prefix].push(doc)
-          }
-          else {
-            newData[prefix] = [doc]
+      const latestLen = await this.account.viewFunction(this.contractName, 'getEventLength')
+      const currentLen = latestEvent ? latestEvent.value : 0
+      if (latestLen - 1 > currentLen) {
+        console.log('fetch new data')
+        const newEvents = await this.account.viewFunction(this.contractName, 'getEvents', {
+          start: currentLen + 1 || 0
+        })
+        if (newEvents.length > 0) {
+          for (const event of newEvents) {
+            await this.handleEvent(event)
           }
         }
-      })
-      this.data = newData
+      }
     } catch (err) {
       console.log(err)
     }
