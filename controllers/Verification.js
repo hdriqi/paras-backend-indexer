@@ -76,6 +76,9 @@ class User {
         }, {
           returnOriginal: false
         })
+        if (!newDoc.value) {
+          throw "bad_input"
+        }
         resolve(newDoc)
       } catch (err) {
         reject(err)
