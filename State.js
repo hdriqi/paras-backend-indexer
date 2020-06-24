@@ -100,6 +100,9 @@ class State {
             await this.handleEvent(event)
           }
         }
+        if (latestLen - 1 > currentLen + newEvents.length) {
+          this.fetchData()
+        }
       }
     } catch (err) {
       console.log(err)
