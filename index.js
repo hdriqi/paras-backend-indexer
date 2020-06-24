@@ -13,6 +13,7 @@ const Mail = require('./Mail')
 const Feed = require('./controllers/Feed')
 const Transaction = require('./controllers/Transaction')
 const Verification = require('./controllers/Verification')
+const Explore = require('./controllers/Explore')
 
 const PORT = 9090
 const server = express()
@@ -25,9 +26,10 @@ const main = async () => {
   await state.init()
   await mail.init()
 
-  // const feed = await new Feed(state, storage)
-  // const transaction = await new Transaction(state, storage)
-  // const verification = await new Verification(state, storage, mail)
+  const feed = await new Feed(state, storage)
+  const transaction = await new Transaction(state, storage)
+  const verification = await new Verification(state, storage, mail)
+  const explore = await new Explore(state, storage)
 
   server.use(cors())
   server.use(bodyParser.urlencoded({ extended: true }))
@@ -70,217 +72,127 @@ const main = async () => {
     })
   })
 
-  // server.get('/users', async (req, res) => {
-  //   const query = []
-  //   Object.keys(req.query).forEach(key => {
-  //     if (key[0] === '_') {
-  //       return
-  //     }
-  //     const value = req.query[key]
-  //     query.push({
-  //       key: key,
-  //       value: value
-  //     })
-  //   })
+  server.get('/transactions', async (req, res) => {
+    const txList = await transaction.getById(req.query.id, req.query.___skip, req.query.___limit)
+    return res.json({
+      success: 1,
+      data: txList
+    })
+  })
 
-  //   const userList = await state.get({
-  //     collection: 'user',
-  //     query: query,
-  //     skip: req.query._skip,
-  //     limit: req.query._limit
-  //   })
-  //   return res.json({
-  //     success: 1,
-  //     data: userList
-  //   })
-  // })
+  server.get('/users', async (req, res) => {
+    const userList = await storage.get('user', req.query)
+    return res.json({
+      success: 1,
+      data: userList
+    })
+  })
 
-  // server.get('/explore', async (req, res) => {
-  //   const min = 0
-  //   const max = state.data.post.length
-  //   const rng = Math.floor(Math.random() * (max - min) + min)
-  //   const id = state.data.post[rng].id
-  //   const postList = await state.get({
-  //     collection: 'post',
-  //     query: [{
-  //       key: 'id',
-  //       value: id
-  //     }],
-  //     skip: req.query._skip,
-  //     limit: req.query._limit,
-  //     embed: [{
-  //       col: 'memento',
-  //       key: 'mementoId',
-  //       targetCol: 'memento',
-  //       targetKey: 'id'
-  //     }, {
-  //       col: 'user',
-  //       key: 'owner',
-  //       targetCol: 'user',
-  //       targetKey: 'id'
-  //     }]
-  //   })
-  //   return res.json({
-  //     success: 1,
-  //     data: postList
-  //   })
-  // })
+  server.get('/explore', async (req, res) => {
+    const postList = await explore.getPost()
+    return res.json({
+      success: 1,
+      data: postList
+    })
+  })
 
-  // server.get('/balances', async (req, res) => {
-  //   const query = []
-  //   Object.keys(req.query).forEach(key => {
-  //     if (key[0] === '_') {
-  //       return
-  //     }
-  //     const value = req.query[key]
-  //     query.push({
-  //       key: key,
-  //       value: value
-  //     })
-  //   })
+  server.get('/balances', async (req, res) => {
+    const query = []
+    Object.keys(req.query).forEach(key => {
+      if (key[0] === '_') {
+        return
+      }
+      const value = req.query[key]
+      query.push({
+        key: key,
+        value: value
+      })
+    })
 
-  //   const balanceList = await state.get({
-  //     collection: 'pac:b',
-  //     query: query,
-  //     skip: req.query._skip,
-  //     limit: req.query._limit
-  //   })
-  //   return res.json({
-  //     success: 1,
-  //     data: balanceList
-  //   })
-  // })
+    const balanceList = await state.get({
+      collection: 'pac:b',
+      query: query,
+      skip: req.query.__skip,
+      limit: req.query.__limit
+    })
+    return res.json({
+      success: 1,
+      data: balanceList
+    })
+  })
 
-  // server.get('/transactions', async (req, res) => {
-  //   const txList = await transaction.getById({
-  //     id: req.query.id,
-  //     skip: req.query._skip,
-  //     limit: req.query._limit,
-  //     embed: [{
-  //       col: 'fromUser',
-  //       key: 'from',
-  //       targetCol: 'user',
-  //       targetKey: 'id'
-  //     }, {
-  //       col: 'toUser',
-  //       key: 'to',
-  //       targetCol: 'user',
-  //       targetKey: 'id'
-  //     }]
-  //   })
-  //   return res.json({
-  //     success: 1,
-  //     data: txList
-  //   })
-  // })
+  server.get('/comments', async (req, res) => {
+    const query = []
+    Object.keys(req.query).forEach(key => {
+      if (key[0] === '_') {
+        return
+      }
+      const value = req.query[key]
+      query.push({
+        key: key,
+        value: value
+      })
+    })
 
-  // server.get('/posts', async (req, res) => {
-  //   const query = []
-  //   Object.keys(req.query).forEach(key => {
-  //     if (key[0] === '_') {
-  //       return
-  //     }
-  //     const value = req.query[key]
-  //     query.push({
-  //       key: key,
-  //       value: value
-  //     })
-  //   })
+    const commentList = await state.get({
+      collection: 'comment',
+      query: query,
+      sort: req.query._sort,
+      skip: req.query.__skip,
+      limit: req.query.__limit,
+      embed: [{
+        col: 'post',
+        key: 'postId',
+        targetCol: 'post',
+        targetKey: 'id'
+      }, {
+        col: 'user',
+        key: 'owner',
+        targetCol: 'user',
+        targetKey: 'id'
+      }]
+    })
+    return res.json({
+      success: 1,
+      data: commentList
+    })
+  })
 
-  //   const postList = await state.get({
-  //     collection: 'post',
-  //     query: query,
-  //     skip: req.query._skip,
-  //     limit: req.query._limit,
-  //     embed: [{
-  //       col: 'memento',
-  //       key: 'mementoId',
-  //       targetCol: 'memento',
-  //       targetKey: 'id'
-  //     }, {
-  //       col: 'user',
-  //       key: 'owner',
-  //       targetCol: 'user',
-  //       targetKey: 'id'
-  //     }]
-  //   })
-  //   return res.json({
-  //     success: 1,
-  //     data: postList
-  //   })
-  // })
+  server.get('/feeds', authenticate, async (req, res) => {
+    const {
+      __skip,
+      __limit
+    } = req.query
 
-  // server.get('/comments', async (req, res) => {
-  //   const query = []
-  //   Object.keys(req.query).forEach(key => {
-  //     if (key[0] === '_') {
-  //       return
-  //     }
-  //     const value = req.query[key]
-  //     query.push({
-  //       key: key,
-  //       value: value
-  //     })
-  //   })
+    try {
+      const result = await feed.get(req.userId, __skip, __limit)
+      return res.json({
+        success: 1,
+        data: result
+      })
+    } catch (err) {
+      console.log(err)
+      return res.json({
+        success: 0,
+        message: err
+      })
+    }
+  })
 
-  //   const commentList = await state.get({
-  //     collection: 'comment',
-  //     query: query,
-  //     sort: req.query._sort,
-  //     skip: req.query._skip,
-  //     limit: req.query._limit,
-  //     embed: [{
-  //       col: 'post',
-  //       key: 'postId',
-  //       targetCol: 'post',
-  //       targetKey: 'id'
-  //     }, {
-  //       col: 'user',
-  //       key: 'owner',
-  //       targetCol: 'user',
-  //       targetKey: 'id'
-  //     }]
-  //   })
-  //   return res.json({
-  //     success: 1,
-  //     data: commentList
-  //   })
-  // })
-
-  // server.get('/feeds', authenticate, async (req, res) => {
-  //   const {
-  //     _skip,
-  //     _limit
-  //   } = req.query
-
-  //   try {
-  //     const result = await feed.get(req.userId, _skip, _limit)
-  //     return res.json({
-  //       success: 1,
-  //       data: result
-  //     })
-  //   } catch (err) {
-  //     return res.json({
-  //       success: 0,
-  //       message: err
-  //     })
-  //   }
-  // })
-
-  // server.get('/follow', authenticate, async (req, res) => {
-  //   try {
-  //     const result = await feed.getFollowing(req.userId, req.query._skip, req.query._limit)
-  //     return res.json({
-  //       success: 1,
-  //       data: result
-  //     })
-  //   } catch (err) {
-  //     return res.json({
-  //       success: 0,
-  //       message: err
-  //     })
-  //   }
-  // })
+  server.get('/follow', authenticate, async (req, res) => {
+    try {
+      const result = await feed.getFollowing(req.userId, req.query.__skip, req.query.__limit)
+      return res.json({
+        success: 1,
+        data: result
+      })
+    } catch (err) {
+      return res.json({
+        success: 0,
+        message: err
+      })
+    }
+  })
 
   // server.post('/follow', authenticate, async (req, res) => {
   //   const {
@@ -302,60 +214,61 @@ const main = async () => {
   //   }
   // })
 
-  // server.get('/register', authenticate, async (req, res) => {
-  //   try {
-  //     const user = await verification.checkRegister(req.userId)
-  //     return res.json({
-  //       success: 1,
-  //       data: user
-  //     })
-  //   } catch (err) {
-  //     return res.status(400).json({
-  //       success: 0,
-  //       message: err
-  //     })
-  //   }
-  // })
+  server.get('/register', authenticate, async (req, res) => {
+    try {
+      const user = await verification.checkRegister(req.userId)
+      return res.json({
+        success: 1,
+        data: user
+      })
+    } catch (err) {
+      console.log(err)
+      return res.status(400).json({
+        success: 0,
+        message: err
+      })
+    }
+  })
 
-  // server.post('/register', authenticate, async (req, res) => {
-  //   const {
-  //     email,
-  //     fullName,
-  //     referral,
-  //   } = req.body
+  server.post('/register', authenticate, async (req, res) => {
+    const {
+      email,
+      fullName,
+      referral,
+    } = req.body
 
-  //   try {
-  //     await verification.register(req.userId, email, fullName, referral)
-  //     return res.json({
-  //       success: 1,
-  //       data: true
-  //     })
-  //   } catch (err) {
-  //     return res.status(400).json({
-  //       success: 0,
-  //       message: err
-  //     })
-  //   }
-  // })
+    try {
+      await verification.register(req.userId, email, fullName, referral)
+      return res.json({
+        success: 1,
+        data: true
+      })
+    } catch (err) {
+      return res.status(400).json({
+        success: 0,
+        message: err
+      })
+    }
+  })
 
-  // server.post('/confirm', async (req, res) => {
-  //   const {
-  //     token
-  //   } = req.body
+  server.post('/confirm', async (req, res) => {
+    const {
+      token
+    } = req.body
 
-  //   try {
-  //     await verification.confirmEmail(token)
-  //     return res.json({
-  //       success: 1,
-  //       data: true
-  //     })
-  //   } catch (err) {
-  //     return res.status(400).json({
-  //       success: 0,
-  //       message: err
-  //     })
-  //   }
-  // })
+    try {
+      await verification.confirmEmail(token)
+      return res.json({
+        success: 1,
+        data: true
+      })
+    } catch (err) {
+      return res.status(400).json({
+        success: 0,
+        message: err
+      })
+    }
+  })
 
   server.listen(PORT, () => {
     console.log(`indexer running on PORT ${PORT}`)
@@ -388,8 +301,8 @@ const main = async () => {
   //       _embed: true,
   //       _sort: 'createdAt',
   //       _order: 'desc',
-  //       _skip: 0,
-  //       _limit: 5
+  //       __skip: 0,
+  //       __limit: 5
   //     }
   //   })
   //   // console.log(x)  

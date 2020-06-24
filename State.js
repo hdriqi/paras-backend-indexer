@@ -51,6 +51,7 @@ class State {
     const args = {
       id: event.params
     }
+    console.log(event.msg)
     const data = await this.account.viewFunction(this.contractName, methodName, args)
     if (type === 'create') {
       await this.storage.db.collection(collection).insertOne(data)
@@ -88,10 +89,21 @@ class State {
       })
       const latestLen = await this.account.viewFunction(this.contractName, 'getEventLength')
       const currentLen = latestEvent ? latestEvent.value : 0
-      if (latestLen - 1 > currentLen) {
+      if (latestEvent === null) {
         console.log('fetch new data')
         const newEvents = await this.account.viewFunction(this.contractName, 'getEvents', {
-          start: currentLen + 1 || 0
+          start: 0
+        })
+        if (newEvents.length > 0) {
+          for await (const event of newEvents) {
+            await this.handleEvent(event)
+          }
+        }
+      }
+      else if (latestLen - 1 > currentLen) {
+        console.log('fetch new data')
+        const newEvents = await this.account.viewFunction(this.contractName, 'getEvents', {
+          start: currentLen + 1
         })
         if (newEvents.length > 0) {
           for await (const event of newEvents) {

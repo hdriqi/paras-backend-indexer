@@ -1,40 +1,22 @@
-class Transaction {
+class Explore {
   constructor(state, storage) {
     this.state = state
     this.storage = storage
   }
 
-  async getById(id, skip = 0, limit = 5) {
+  async getPost() {
     const embed = [{
-      col: 'fromUser',
-      key: 'from',
-      targetCol: 'user',
+      col: 'memento',
+      key: 'mementoId',
+      targetCol: 'memento',
       targetKey: 'id'
     }, {
-      col: 'toUser',
-      key: 'to',
+      col: 'user',
+      key: 'owner',
       targetCol: 'user',
       targetKey: 'id'
     }]
-    const data = await this.storage.db.collection('transaction').find({
-      $or: [
-        {
-          from: id
-        },
-        {
-          to: id
-        }
-      ]
-    }, {
-      projection: {
-        _id: 0
-      }
-    })
-      .sort({
-        createdAt: -1
-      })
-      .skip(parseInt(skip))
-      .limit(parseInt(limit))
+    const data = await this.storage.db.collection('post').aggregate([{ $sample: { size: 1 } }])
 
     const arr = data.toArray()
     const iter = (await arr).map(x => x)
@@ -53,4 +35,4 @@ class Transaction {
   }
 }
 
-module.exports = Transaction
+module.exports = Explore

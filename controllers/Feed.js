@@ -4,81 +4,101 @@ class Feed {
     this.storage = storage
   }
 
-  async get(id, skip, limit) {
+  async get(id, skip = 0, limit = 5) {
     const followingList = await this.getFollowing(id)
     followingList.push({
       targetId: id,
       targetType: 'user'
     })
     const idList = followingList.map(following => following.targetId)
-    let result = []
-    const reversedPost = this.state.data.post.sort((a, b) => b.createdAt - a.createdAt)
-    for (let i = 0; i < reversedPost.length; i++) {
-      const post = reversedPost[i]
-      if (
-        (idList.includes(post.owner)) ||
-        (idList.includes(post.mementoId))
-      ) {
-        post.user = this.state.data.user.find(u => u.id === post.owner)
-        post.memento = this.state.data.memento.find(m => m.id === post.mementoId)
-        result.push(post)
+    const embed = [{
+      col: 'memento',
+      key: 'mementoId',
+      targetCol: 'memento',
+      targetKey: 'id'
+    }, {
+      col: 'user',
+      key: 'owner',
+      targetCol: 'user',
+      targetKey: 'id'
+    }]
+    const data = await this.storage.db.collection('post').find({
+      $or: [
+        {
+          owner: {
+            $in: idList
+          }
+        },
+        {
+          mementoId: {
+            $in: idList
+          }
+        }
+      ]
+    }, {
+      projection: {
+        _id: 0
       }
-    }
-    if (skip) {
-      result.splice(0, skip)
-    }
+    })
+      .sort({
+        createdAt: -1
+      })
+      .skip(parseInt(skip))
+      .limit(parseInt(limit))
 
-    if (limit) {
-      result = result.slice(0, limit)
+    const arr = data.toArray()
+    const iter = (await arr).map(x => x)
+    const result = []
+    for await (const d of iter) {
+      if (embed &&  embed.length > 0) {
+        for (const e of embed) {
+          d[e.col] = await this.storage.db.collection(e.targetCol).findOne({
+            [e.targetKey]: d[e.key]
+          })
+        }
+      }
+      result.push(d)
     }
-    console.log(result)
     return result
   }
 
   async getFollowing(id, skip = 0, limit = 10) {
-    let followingList = await this.storage.feeds.chain().find({
-      userId: id
-    }).data({ removeMeta: true })
-
-    console.log(followingList)
-    let result = followingList.map(follow => {
-      if (follow.targetType === 'memento') {
-        follow.memento = this.state.data.memento.find(m => m.id === follow.targetId)
-      }
-      else if (follow.targetType === 'user') {
-        follow.user = this.state.data.user.find(u => u.id === follow.targetId)
-      }
-      return follow
-    })
-    if (skip) {
-      result.splice(0, skip)
-    }
-
-    if (limit) {
-      result = result.slice(0, limit)
-    }
+    const query = `userId=${id}&__skip=${skip}&__limit=${limit}`
+    const followingList = await this.storage.get('feeds', query, [{
+      key: 'targetId',
+      col: 'memento',
+      targetKey: 'id',
+      targetCol: 'memento'
+    }, {
+      key: 'targetId',
+      col: 'user',
+      targetKey: 'id',
+      targetCol: 'user',
+    }])
 
     return followingList
   }
 
-  async toggleFollow(id, targetId, targetType) {
+  async unfollow(id, targetId, targetType) {
     const doc = {
       userId: id,
       targetId: targetId,
       targetType: targetType
     }
-    const isFolowing = await this.storage.feeds.findOne(doc)
-    // unfollow user
-    if (isFolowing) {
-      console.log(`unfollow ${targetId}`)
-      await this.storage.feeds.findAndRemove(doc)
+    console.log(`unfollow ${targetId}`)
+    await this.storage.feeds.deleteOne(doc)
+    return doc
+  }
+
+  async follow(id, targetId, targetType) {
+    const doc = {
+      userId: id,
+      targetId: targetId,
+      targetType: targetType,
+      createdAt: new Date().getTime()
     }
-    // follow user
-    else {
-      console.log(`follow ${targetId}`)
-      doc.createdAt = new Date().getTime()
-      await this.storage.feeds.insertOne(doc)
-    }
+    console.log(`follow ${targetId}`)
+    await this.storage.feeds.insertOne(doc)
     return doc
   }
 }

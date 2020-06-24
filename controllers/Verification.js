@@ -65,12 +65,16 @@ class User {
         if (alreadyConfirmed) {
           return reject('already_confirmed')
         }
-        const newDoc = await this.storage.verifications.findAndUpdate({
+        const newDoc = await this.storage.verifications.findOneAndUpdate({
           userId: decoded.userId,
           email: decoded.email
-        }, (doc) => {
-          doc.updatedAt = new Date().getTime()
-          doc.status = 'confirmed'
+        }, {
+          $set: {
+            updatedAt: new Date().getTime(),
+            status: 'confirmed'
+          }
+        }, {
+          returnOriginal: false
         })
         resolve(newDoc)
       } catch (err) {
