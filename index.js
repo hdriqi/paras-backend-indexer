@@ -14,6 +14,7 @@ const Feed = require('./controllers/Feed')
 const Transaction = require('./controllers/Transaction')
 const Verification = require('./controllers/Verification')
 const Explore = require('./controllers/Explore')
+const Balance = require('./controllers/Balance')
 
 const PORT = 9090
 const server = express()
@@ -30,6 +31,7 @@ const main = async () => {
   const transaction = await new Transaction(state, storage)
   const verification = await new Verification(state, storage, mail)
   const explore = await new Explore(state, storage)
+  const balance = await new Balance(state, storage)
 
   server.use(cors())
   server.use(bodyParser.urlencoded({ extended: true }))
@@ -73,7 +75,7 @@ const main = async () => {
   })
 
   server.get('/transactions', async (req, res) => {
-    const txList = await transaction.getById(req.query.id, req.query.___skip, req.query.___limit)
+    const txList = await transaction.getById(req.query.id, req.query.__skip, req.query.__limit)
     return res.json({
       success: 1,
       data: txList
@@ -96,28 +98,11 @@ const main = async () => {
     })
   })
 
-  server.get('/balances', async (req, res) => {
-    const query = []
-    Object.keys(req.query).forEach(key => {
-      if (key[0] === '_') {
-        return
-      }
-      const value = req.query[key]
-      query.push({
-        key: key,
-        value: value
-      })
-    })
-
-    const balanceList = await state.get({
-      collection: 'pac:b',
-      query: query,
-      skip: req.query.__skip,
-      limit: req.query.__limit
-    })
+  server.get('/balances/:id', async (req, res) => {
+    const accountBalance = await balance.get(req.params.id)
     return res.json({
       success: 1,
-      data: balanceList
+      data: accountBalance
     })
   })
 

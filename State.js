@@ -1,19 +1,9 @@
-const axios = require('axios')
-const base64 = require('base-64')
 const nearAPI = require('near-api-js')
 
 const config = {
   nodeUrl: 'https://rpc.testnet.near.org',
   deps: {
     keyStore: new nearAPI.keyStores.UnencryptedFileSystemKeyStore()
-  }
-}
-
-function parseJSON(str) {
-  try {
-    return JSON.parse(str);
-  } catch (e) {
-    return str;
   }
 }
 
