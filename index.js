@@ -122,36 +122,12 @@ const main = async () => {
   })
 
   server.get('/comments', async (req, res) => {
-    const query = []
-    Object.keys(req.query).forEach(key => {
-      if (key[0] === '_') {
-        return
-      }
-      const value = req.query[key]
-      query.push({
-        key: key,
-        value: value
-      })
-    })
-
-    const commentList = await state.get({
-      collection: 'comment',
-      query: query,
-      sort: req.query._sort,
-      skip: req.query.__skip,
-      limit: req.query.__limit,
-      embed: [{
-        col: 'post',
-        key: 'postId',
-        targetCol: 'post',
-        targetKey: 'id'
-      }, {
-        col: 'user',
-        key: 'owner',
-        targetCol: 'user',
-        targetKey: 'id'
-      }]
-    })
+    const commentList = await storage.get('comment', req.query, [{
+      col: 'user',
+      key: 'owner',
+      targetCol: 'user',
+      targetKey: 'id'
+    }])
     return res.json({
       success: 1,
       data: commentList

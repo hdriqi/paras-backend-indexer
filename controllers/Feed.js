@@ -5,7 +5,7 @@ class Feed {
   }
 
   async get(id, skip = 0, limit = 5) {
-    const followingList = await this.getFollowing(id)
+    const followingList = await this.getFollowing(id, 0, 0, true)
     followingList.push({
       targetId: id,
       targetType: 'user'
@@ -62,11 +62,13 @@ class Feed {
     return result
   }
 
-  async getFollowing(id, skip = 0, limit = 10) {
-    const query = {
+  async getFollowing(id, skip = 0, limit = 10, all = false) {
+    const query = !all ? {
       userId: id,
       __skip: skip,
       __limit: limit
+    } : {
+      userId: id,
     }
     const followingList = await this.storage.get('feeds', query, [{
       key: 'targetId',
