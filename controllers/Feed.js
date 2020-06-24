@@ -63,14 +63,18 @@ class Feed {
   }
 
   async getFollowing(id, skip = 0, limit = 10) {
-    const query = `userId=${id}&__skip=${skip}&__limit=${limit}`
+    const query = {
+      userId: id,
+      __skip: skip,
+      __limit: limit
+    }
     const followingList = await this.storage.get('feeds', query, [{
       key: 'targetId',
       col: 'memento',
       targetKey: 'id',
       targetCol: 'memento'
     }, {
-      key: 'targetId',
+      key: 'userId',
       col: 'user',
       targetKey: 'id',
       targetCol: 'user',
@@ -94,11 +98,14 @@ class Feed {
     const doc = {
       userId: id,
       targetId: targetId,
-      targetType: targetType,
-      createdAt: new Date().getTime()
+      targetType: targetType
     }
     console.log(`follow ${targetId}`)
-    await this.storage.feeds.insertOne(doc)
+    const exist = await this.storage.feeds.findOne(doc)
+    if (!exist) {
+      doc.createdAt = new Date().getTime()
+      await this.storage.feeds.insertOne(doc)
+    }
     return doc
   }
 }

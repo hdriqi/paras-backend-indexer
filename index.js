@@ -194,25 +194,45 @@ const main = async () => {
     }
   })
 
-  // server.post('/follow', authenticate, async (req, res) => {
-  //   const {
-  //     targetId,
-  //     targetType
-  //   } = req.body
+  server.post('/follow', authenticate, async (req, res) => {
+    const {
+      targetId,
+      targetType
+    } = req.body
 
-  //   try {
-  //     await feed.toggleFollow(req.userId, targetId, targetType)
-  //     return res.json({
-  //       success: 1,
-  //       data: true
-  //     })
-  //   } catch (err) {
-  //     return res.status(400).json({
-  //       success: 0,
-  //       message: err
-  //     })
-  //   }
-  // })
+    try {
+      await feed.follow(req.userId, targetId, targetType)
+      return res.json({
+        success: 1,
+        data: true
+      })
+    } catch (err) {
+      return res.status(400).json({
+        success: 0,
+        message: err
+      })
+    }
+  })
+
+  server.post('/unfollow', authenticate, async (req, res) => {
+    const {
+      targetId,
+      targetType
+    } = req.body
+
+    try {
+      await feed.unfollow(req.userId, targetId, targetType)
+      return res.json({
+        success: 1,
+        data: true
+      })
+    } catch (err) {
+      return res.status(400).json({
+        success: 0,
+        message: err
+      })
+    }
+  })
 
   server.get('/register', authenticate, async (req, res) => {
     try {
