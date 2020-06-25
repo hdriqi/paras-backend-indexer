@@ -47,7 +47,7 @@ class Cron {
 
   async init() {
     cron.schedule('0 9 * * *', async () => {
-      _sendWalletEmail()
+      await this._sendWalletEmail()
     }, {
       scheduled: true,
       timezone: 'America/Los_Angeles'
