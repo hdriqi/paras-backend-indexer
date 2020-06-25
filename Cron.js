@@ -10,7 +10,7 @@ class Cron {
   async _sendWalletEmail() {
     try {
       const endTime = new Date().getTime()
-      const last12H = 12 * 60 * 60 * 1000
+      const last12H = 24 * 60 * 60 * 1000
       const startTime = endTime - last12H
       const last12HTx = await this.storage.db.collection('transaction').find({
         createdAt: {
