@@ -48,6 +48,7 @@ class Mail {
   async sendVerifyEmail({ link, email }) {
     const tmpl = templateVerifyEmail(link)
     const { html } = await heml(tmpl, hemlOpts)
+    console.log(`verify mail send to ${email}`)
     this.send({
       from: `"Paras Team" <hello@paras.id>`,
       to: email,
@@ -61,6 +62,7 @@ class Mail {
     const totalGain = txList.map(tx => JSBI.BigInt(tx.value)).reduce((a, b) => JSBI.add(a, b))
     const { html } = await heml(tmpl, hemlOpts)
     const subject = `[Paras] You've received ${prettyBalance(totalGain, 18, 4)} PAC`
+    console.log(`wallet mail send to ${email}`)
     this.send({
       from: `"Paras Team" <hello@paras.id>`,
       to: email,

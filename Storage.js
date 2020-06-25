@@ -12,7 +12,7 @@ class Storage {
   async init() {
     try {
       await this.client.connect()
-      this.db = this.client.db(process.env.CONTRACT_NAME)
+      this.db = this.client.db(process.env.DB_NAME)
       this.ready = true
       this.kv = this.db.collection('kv')
       this.feeds = this.db.collection('feeds')
