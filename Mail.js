@@ -1,6 +1,9 @@
 const nodemailer = require('nodemailer')
 const heml = require('heml')
+const { prettyBalance } = require('./utils/common')
 const templateVerifyEmail = require('./MailTemplate/verifyEmail')
+const templateWalletEmail = require('./MailTemplate/walletEmail')
+const JSBI = require('jsbi')
 
 const hemlOpts = {
   validate: 'soft',
@@ -49,6 +52,19 @@ class Mail {
       from: `"Paras Team" <hello@paras.id>`,
       to: email,
       subject: `[Paras] Email Verification`,
+      html: html
+    })
+  }
+
+  async sendWalletEmail({ txList, email }) {
+    const tmpl = templateWalletEmail(txList)
+    const totalGain = txList.map(tx => JSBI.BigInt(tx.value)).reduce((a, b) => JSBI.add(a, b))
+    const { html } = await heml(tmpl, hemlOpts)
+    const subject = `[Paras] You've received ${prettyBalance(totalGain, 18, 4)} PAC`
+    this.send({
+      from: `"Paras Team" <hello@paras.id>`,
+      to: email,
+      subject: subject,
       html: html
     })
   }

@@ -1762,6 +1762,11 @@ js-sha256@^0.9.0:
   resolved "https://registry.yarnpkg.com/js-sha256/-/js-sha256-0.9.0.tgz#0b89ac166583e91ef9123644bd3c5334ce9d0966"
   integrity sha512-sga3MHh9sgQN2+pJ9VYZ+1LPwXOxuBJBA5nrR5/ofPfuiJBE2hnjsaN8se8JznOmGLN2p49Pe5U/ttafcs/apA==
 
+jsbi@^3.1.3:
+  version "3.1.3"
+  resolved "https://registry.yarnpkg.com/jsbi/-/jsbi-3.1.3.tgz#f024b340032f7c7caaa6ca4b32b55e8d33f6e897"
+  integrity sha512-nBJqA0C6Qns+ZxurbEoIR56wyjiUszpNy70FHvxO5ervMoCbZVE3z3kxr5nKGhlxr/9MhKTSUBs7cAwwuf3g9w==
+
 jsbn@~0.1.0:
   version "0.1.1"
   resolved "https://registry.yarnpkg.com/jsbn/-/jsbn-0.1.1.tgz#a5e654c2e5a2deb5f201d96cefbca80c0ef2f513"
@@ -2194,6 +2199,14 @@ next-tick@~1.0.0:
   resolved "https://registry.yarnpkg.com/next-tick/-/next-tick-1.0.0.tgz#ca86d1fe8828169b0120208e3dc8424b9db8342c"
   integrity sha1-yobR/ogoFpsBICCOPchCS524NCw=
 
+node-cron@^2.0.3:
+  version "2.0.3"
+  resolved "https://registry.yarnpkg.com/node-cron/-/node-cron-2.0.3.tgz#b9649784d0d6c00758410eef22fa54a10e3f602d"
+  integrity sha512-eJI+QitXlwcgiZwNNSRbqsjeZMp5shyajMR81RZCqeW0ZDEj4zU9tpd4nTh/1JsBiKbF8d08FCewiipDmVIYjg==
+  dependencies:
+    opencollective-postinstall "^2.0.0"
+    tz-offset "0.0.1"
+
 node-fetch@^2.3.0:
   version "2.6.0"
   resolved "https://registry.yarnpkg.com/node-fetch/-/node-fetch-2.6.0.tgz#e633456386d4aa55863f676a7ab0daa8fdecb0fd"
@@ -2301,6 +2314,11 @@ open@0.0.5:
   version "0.0.5"
   resolved "https://registry.yarnpkg.com/open/-/open-0.0.5.tgz#42c3e18ec95466b6bf0dc42f3a2945c3f0cad8fc"
   integrity sha1-QsPhjslUZra/DcQvOilFw/DK2Pw=
+
+opencollective-postinstall@^2.0.0:
+  version "2.0.3"
+  resolved "https://registry.yarnpkg.com/opencollective-postinstall/-/opencollective-postinstall-2.0.3.tgz#7a0fff978f6dbfa4d006238fbac98ed4198c3259"
+  integrity sha512-8AV/sCtuzUeTo8gQK5qDZzARrulB3egtLzFgteqB2tcT4Mw7B8Kt7JcDHmltjz6FOAHsvTevk70gZEbhM4ZS9Q==
 
 opn@^5.3.0:
   version "5.5.0"
@@ -3361,6 +3379,11 @@ typedarray-to-buffer@^3.1.5:
   integrity sha512-zdu8XMNEDepKKR+XYOXAVPtWui0ly0NtohUscw+UmaHiAWT8hrV1rr//H6V+0DvJ3OQ19S979M0laLfX8rm82Q==
   dependencies:
     is-typedarray "^1.0.0"
+
+tz-offset@0.0.1:
+  version "0.0.1"
+  resolved "https://registry.yarnpkg.com/tz-offset/-/tz-offset-0.0.1.tgz#fef920257024d3583ed9072a767721a18bdb8a76"
+  integrity sha512-kMBmblijHJXyOpKzgDhKx9INYU4u4E1RPMB0HqmKSgWG8vEcf3exEfLh4FFfzd3xdQOw9EuIy/cP0akY6rHopQ==
 
 u3@^0.1.0:
   version "0.1.0"

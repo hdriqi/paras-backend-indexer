@@ -9,6 +9,7 @@ const authenticate = require('./middleware/authenticate')
 const State = require('./State')
 const Storage = require('./Storage')
 const Mail = require('./Mail')
+const Cron = require('./Cron')
 
 const Feed = require('./controllers/Feed')
 const Transaction = require('./controllers/Transaction')
@@ -21,11 +22,13 @@ const server = express()
 
 const main = async () => {
   const storage = new Storage()
-  const state = new State(storage)
   const mail = new Mail()
+  const state = new State(storage)
+  const cron = new Cron(state, storage, mail)
   await storage.init()
-  await state.init()
   await mail.init()
+  await state.init()
+  await cron.init()
 
   const feed = await new Feed(state, storage)
   const transaction = await new Transaction(state, storage)

@@ -7,6 +7,7 @@ const confirmEmail = (link) => {
         font-family: 'Inconsolata', monospace;
         background-color: #121212;
         padding: 48px 0px;
+        line-height: 150%;
       }
       container {
         width: 100%;
