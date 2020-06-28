@@ -17,6 +17,7 @@ class State {
 
   async start() {
     await this.fetchData()
+    console.log('done wait 3sec')
     setTimeout(() => {
       this.start()
     }, 3000)
@@ -41,24 +42,26 @@ class State {
     const args = {
       id: event.params
     }
-    console.log(event.msg)
     const data = await this.account.viewFunction(this.contractName, methodName, args)
-    if (type === 'create') {
-      await this.storage.db.collection(collection).insertOne(data)
-    }
-    else if (type === 'update') {
-      await this.storage.db.collection(collection).findOneAndUpdate({
-        id: event.params
-      }, {
-        $set: data
-      }, {
-        upsert: true
-      })
-    }
-    else if (type === 'delete') {
-      await this.storage.db.collection(collection).deleteOne({
-        id: event.params
-      })
+    console.log(data)
+    if (data) {
+      if (type === 'create') {
+        await this.storage.db.collection(collection).insertOne(data)
+      }
+      else if (type === 'update') {
+        await this.storage.db.collection(collection).findOneAndUpdate({
+          id: event.params
+        }, {
+          $set: data
+        }, {
+          upsert: true
+        })
+      }
+      else if (type === 'delete') {
+        await this.storage.db.collection(collection).deleteOne({
+          id: event.params
+        })
+      }
     }
     await this.storage.kv.findOneAndUpdate({
       key: 'latestEvent',
@@ -101,7 +104,7 @@ class State {
           }
         }
         if (latestLen - 1 > currentLen + newEvents.length) {
-          this.fetchData()
+          await this.fetchData()
         }
       }
     } catch (err) {
