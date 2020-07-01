@@ -57,11 +57,11 @@ class State {
           upsert: true
         })
       }
-      else if (type === 'delete') {
-        await this.storage.db.collection(collection).deleteOne({
-          id: event.params
-        })
-      }
+    }
+    if (type === 'delete') {
+      await this.storage.db.collection(collection).deleteOne({
+        id: event.params
+      })
     }
     await this.storage.kv.findOneAndUpdate({
       key: 'latestEvent',
