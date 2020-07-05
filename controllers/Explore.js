@@ -18,10 +18,15 @@ class Explore {
       targetCol: 'user',
       targetKey: 'id'
     }]
-    const data = await this.storage.db.collection('post').aggregate([{ $sample: { size: 1 } }])
 
-    const arr = data.toArray()
-    const iter = (await arr).map(x => x)
+    const minSample = 0
+    const maxSample = 10
+    const rng = Math.round(Math.random() * (maxSample - minSample) + minSample)
+    const data = await this.storage.db.collection('post').aggregate([{ $sample: { size: maxSample } }])
+
+    const arr = await data.toArray()
+    const selected = [arr[rng]] 
+    const iter = selected.map(x => x)
     const result = []
     for await (const d of iter) {
       if (embed &&  embed.length > 0) {
