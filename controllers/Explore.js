@@ -21,7 +21,7 @@ class Explore {
 
     const minSample = 0
     const maxSample = 10
-    const rng = Math.round(Math.random() * (maxSample - minSample) + minSample)
+    const rng = Math.floor(Math.random() * (maxSample - minSample) + minSample)
     const data = await this.storage.db.collection('post').aggregate([{ $sample: { size: maxSample } }])
 
     const arr = await data.toArray()
