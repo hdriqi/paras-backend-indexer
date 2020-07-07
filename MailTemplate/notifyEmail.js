@@ -49,7 +49,7 @@ const notifyEmail = (notifyList) => {
         </col>
       </row>
       <row style="margin-bottom: 8px">
-        <p>Check out the some actions that are related to your account:</p>
+        <p>Here's some actions that related to your account in the past 12 hours:</p>
         <ul>
           ${summary}
         </ul>
