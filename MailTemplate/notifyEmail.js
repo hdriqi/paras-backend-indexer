@@ -1,12 +1,10 @@
-const { prettyBalance } = require('../utils/common')
-
-const walletEmail = (txList) => {
-  const summary = txList.map((tx) => {
-    return `<p>[#${tx.id}] ${prettyBalance(tx.value, 18, 4)} PAC from <a href="${process.env.FRONTEND_URL}/${tx.from}">${tx.from}</a></p>`
+const notifyEmail = (notifyList) => {
+  const summary = notifyList.map(notify => {
+    return `<li><p><a href="${notify.link}">${notify.message}</a></p></li>`
   }).join('')
 
   return `
-<heml>
+  <heml>
   <head>
     <style>
     body {
@@ -51,20 +49,18 @@ const walletEmail = (txList) => {
         </col>
       </row>
       <row style="margin-bottom: 8px">
-        <p>Here's the summary of your gains in the past few hours:</p>
-        ${summary}
+        <p>Check out the some actions that are related to your account:</p>
+        <ul>
+          ${summary}
+        </ul>
       </row>
-      <row>
-        <p>Check out your balance and transaction details on Paras Wallet</p>
-      </row>
-      <button style="margin-bottom: 36px" href="${process.env.FRONTEND_URL}/wallet">Go To Wallet</button>
       <row>
         <p>If you have any question, feel free to ask us on <a href="mailto:hello@paras.id">hello@paras.id</a></p>
       </row>
     </container>
   </body>
-</heml> 
+</heml>
   `
 }
 
-module.exports = walletEmail
+module.exports = notifyEmail

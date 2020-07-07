@@ -50,7 +50,7 @@ const confirmEmail = (link) => {
         </row>
         <button style="margin-bottom: 36px" href="${link}">Confirm Email</button>
         <row>
-          <p>If you have any question, feel free to ask us on <a href="mailto:support@vestrade.io">hello@paras.id</a></p>
+          <p>If you have any question, feel free to ask us on <a href="mailto:hello@paras.id">hello@paras.id</a></p>
         </row>
       </container>
     </body>

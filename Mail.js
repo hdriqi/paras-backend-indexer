@@ -3,6 +3,7 @@ const heml = require('heml')
 const { prettyBalance } = require('./utils/common')
 const templateVerifyEmail = require('./MailTemplate/verifyEmail')
 const templateWalletEmail = require('./MailTemplate/walletEmail')
+const templateNotifyEmail = require('./MailTemplate/notifyEmail')
 const JSBI = require('jsbi')
 
 const hemlOpts = {
@@ -63,6 +64,19 @@ class Mail {
     const { html } = await heml(tmpl, hemlOpts)
     const subject = `[Paras] You've received ${prettyBalance(totalGain, 18, 4)} PAC`
     console.log(`wallet mail send to ${email}`)
+    this.send({
+      from: `"Paras Team" <hello@paras.id>`,
+      to: email,
+      subject: subject,
+      html: html
+    })
+  }
+
+  async sendNotificationEmail({ notifyList, email }) {
+    const tmpl = templateNotifyEmail(notifyList)
+    const { html } = await heml(tmpl, hemlOpts)
+    const subject = `[Paras] You've ${notifyList.length} notifications`
+    console.log(`notification mail send to ${email}`)
     this.send({
       from: `"Paras Team" <hello@paras.id>`,
       to: email,
