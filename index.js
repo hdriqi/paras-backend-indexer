@@ -109,6 +109,19 @@ const main = async () => {
     })
   })
 
+  server.get('/grants', async (req, res) => {
+    const grantList = await storage.get('grant', req.query, [{
+      col: 'memento',
+      key: 'mementoId',
+      targetCol: 'memento',
+      targetKey: 'id'
+    }])
+    return res.json({
+      success: 1,
+      data: grantList
+    })
+  })
+
   server.get('/balances/:id', async (req, res) => {
     const accountBalance = await balance.get(req.params.id)
     return res.json({
