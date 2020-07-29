@@ -114,7 +114,7 @@ class Feed {
   async getTimelines(query) {
     const result = await this.storage.get('timelines', query)
     for (const data of result) {
-      data.post = await this.storage.get('post', {
+      const post = await this.storage.get('post', {
         id: data.postId
       }, [{
         col: 'memento',
@@ -127,6 +127,7 @@ class Feed {
         targetCol: 'user',
         targetKey: 'id'
       }])
+      data.post = post[0]
     }
     return result
   }
