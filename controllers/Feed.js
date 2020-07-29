@@ -50,7 +50,7 @@ class Feed {
     const iter = (await arr).map(x => x)
     const result = []
     for await (const d of iter) {
-      if (embed &&  embed.length > 0) {
+      if (embed && embed.length > 0) {
         for (const e of embed) {
           d[e.col] = await this.storage.db.collection(e.targetCol).findOne({
             [e.targetKey]: d[e.key]
@@ -68,8 +68,8 @@ class Feed {
       __skip: skip,
       __limit: limit
     } : {
-      userId: id,
-    }
+        userId: id,
+      }
     const followingList = await this.storage.get('feeds', query, [{
       key: 'targetId',
       col: 'memento',
@@ -108,6 +108,48 @@ class Feed {
       doc.createdAt = new Date().getTime()
       await this.storage.feeds.insertOne(doc)
     }
+    return doc
+  }
+
+  async getTimelines(query) {
+    const result = await this.storage.get('timelines', query)
+    for (const data of result) {
+      data.post = await this.storage.get('post', {
+        id: data.postId
+      }, [{
+        col: 'memento',
+        key: 'mementoId',
+        targetCol: 'memento',
+        targetKey: 'id'
+      }, {
+        col: 'user',
+        key: 'owner',
+        targetCol: 'user',
+        targetKey: 'id'
+      }])
+    }
+    return result
+  }
+
+  async addToTimelines(feedId, postId) {
+    const doc = {
+      feedId: feedId,
+      postId: postId
+    }
+    const exist = await this.storage.db.collection('timelines').findOne(doc)
+    if (!exist) {
+      doc.createdAt = new Date().getTime()
+      await this.storage.db.collection('timelines').insertOne(doc)
+    }
+    return doc
+  }
+
+  async removeFromTimelines(feedId, postId) {
+    const doc = {
+      feedId: feedId,
+      postId: postId
+    }
+    await this.storage.db.collection('timelines').deleteOne(doc)
     return doc
   }
 }

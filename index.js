@@ -5,6 +5,7 @@ const cors = require('cors')
 const bodyParser = require('body-parser')
 
 const authenticate = require('./middleware/authenticate')
+const admin = require('./middleware/admin')
 
 const State = require('./State')
 const Storage = require('./Storage')
@@ -157,6 +158,52 @@ const main = async () => {
       })
     } catch (err) {
       console.log(err)
+      return res.json({
+        success: 0,
+        message: err
+      })
+    }
+  })
+
+  server.get('/timelines', async (req, res) => {
+    try {
+      const result = await feed.getTimelines(req.query)
+      return res.json({
+        success: 1,
+        data: result
+      })
+    } catch (err) {
+      console.log(err)
+      return res.json({
+        success: 0,
+        message: err
+      })
+    }
+  })
+
+  server.post('/timelines', admin, async (req, res) => {
+    try {
+      const result = await feed.addToTimelines(req.body.feedId, req.body.postId)
+      return res.json({
+        success: 1,
+        data: result
+      })
+    } catch (err) {
+      return res.json({
+        success: 0,
+        message: err
+      })
+    }
+  })
+
+  server.delete('/timelines', admin, async (req, res) => {
+    try {
+      const result = await feed.removeFromTimelines(req.body.feedId, req.body.postId)
+      return res.json({
+        success: 1,
+        data: result
+      })
+    } catch (err) {
       return res.json({
         success: 0,
         message: err
