@@ -30,7 +30,7 @@
     "query-params-mongo": "https://github.com/hdriqi/query-params-mongo",
     "sjcl": "^1.0.8",
     "tweetnacl": "^1.0.3",
-    "underscore": "^1.10.2"
+    "underscore": "^1.12.1"
   },
   "devDependencies": {
     "nodemon": "^2.0.4"
