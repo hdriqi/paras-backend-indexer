@@ -26,7 +26,7 @@
     "mongodb": "^3.5.9",
     "near-api-js": "^0.25.1",
     "node-cron": "^2.0.3",
-    "nodemailer": "^6.4.8",
+    "nodemailer": "^6.4.16",
     "query-params-mongo": "https://github.com/hdriqi/query-params-mongo",
     "sjcl": "^1.0.8",
     "tweetnacl": "^1.0.3",
